@@ -5,55 +5,51 @@
   <title>Title</title>
 </head>
 <body>
-  <button onclick="nextRoot()">Next ROOT</button>
-  <button onclick="prevRoot()">Prev ROOT</button>
   <div id="root"></div>
   <script src="vDom.js"></script>
+  <script src="reactivity.js"></script>
   <script>
-    const node =
-      h('div', { class: 'container' },
+    const state = reactive({
+      inputValue: 'Hello Daddy'
+    })
+
+    const render = (text) => {
+      return h('div', { class: 'container' },
         [
           h(
             'h1',
             { title: 'this is a title' },
-            'Basics of JS Framework'
+            'Basics of JS Framework - updated'
           ),
           h(
-            'p',
+            'div',
             { class: 'description' },
-            'Here we learn, what is behind of every modern js Framework'
+            [
+              h('img', {
+                src: 'https://upload.wikimedia.org/wikipedia/commons/3/34/Bring_me_the_Horizon_-_2019159204956_2019-06-08_Rock_am_Ring_-_1921_-_AK8I9820.jpg',
+                alt: 'Olober Sykes',
+                style: 'width: 300px'
+              }, []),
+              h('p', {}, text),
+              h('input', {oninput: 'state.inputValue = this.value'}, [])
+            ]
           )
         ]
       );
+    };
 
-      const newNode =
-        h('div', { class: 'container' },
-          [
-            h(
-              'h1',
-              { title: 'this is a title' },
-              'Basics of JS Framework - updated'
-            ),
-            h(
-              'div',
-              { class: 'description' },
-              [
-                h('img', {
-                  src: 'https://upload.wikimedia.org/wikipedia/commons/3/34/Bring_me_the_Horizon_-_2019159204956_2019-06-08_Rock_am_Ring_-_1921_-_AK8I9820.jpg',
-                  alt: 'Olober Sukes',
-                  style: 'width: 300px'
-                }, []),
-                h('p', {}, 'Hello Daddy'),
-                h('input', {}, [])
-              ]
-            )
-          ]
-        );
+    let currentNode;
+    watchEffect(() => {
+      if (!currentNode) {
+        currentNode = render(state.inputValue);
+        mount(currentNode, document.getElementById('root'));
+        return;
+      }
 
-      mount(node, document.getElementById('root'));
-
-      const nextRoot = () => patch(node, newNode);
-      const prevRoot = () => patch(newNode, node);
+      const newNode = render(state.inputValue);
+      patch(currentNode, newNode);
+      currentNode = newNode;
+    });
   </script>
 </body>
 </html>
